@@ -124,6 +124,17 @@ void Image::draw(int x, int y, int xi, int yi, int w, int h, int layer)
 
 	s_BufferImage.push_back(this);
 }
+
+void Image::destroy()
+{
+	for (int i = 0; i < s_BufferImage.size(); i++)
+	{
+		if (s_BufferImage[i] == this)
+		{
+			s_BufferImage.erase(s_BufferImage.begin() + i);
+		}
+	}
+}
 //Image Draw
 
 //Image Reset Condition
@@ -137,5 +148,12 @@ void Image::resetAllCondition()
 	s_BufferImage.clear();
 }
 //Image Reset Condition
+
+//Image set Alpha
+void Image::setAlpha(float alpha)
+{
+	m_Sprite->setAlphaF(alpha);
+}
+//Image set Alpha
 
 //Class Image

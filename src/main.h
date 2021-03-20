@@ -20,6 +20,8 @@
 
 #include "Physic/PhysicEngine.h"
 
+#include "GameObject/GameObject.h"
+
 namespace ncine {
 
 class AppConfiguration;
@@ -47,12 +49,7 @@ public:
 	void onMouseMoved(const nc::MouseState &state) override;
 
 private:
-	nctl::UniquePtr<nc::Texture> texture;
-	nctl::UniquePtr<nc::Sprite> sprite;
-
-	Image image,image2,image3;
-	AABBbox* box, *box2, *box3;
-	bool first=true;
+	std::vector<RectangleParticle> rectangleParticles;
 
 	std::chrono::time_point<std::chrono::high_resolution_clock> start;
 	double elapsedTime = 0.0f;

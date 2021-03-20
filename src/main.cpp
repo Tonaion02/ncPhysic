@@ -44,20 +44,13 @@ void MyEventHandler::onInit()
 	Renderer::debugLayer.addDebugString("center: ");
 	//Renderer Init
 
-	//Physic Engine Init
-	//PhysicEngine::getInstance().addAABBbox(AABBbox({ 50.0f, 50.0f }, { 100.0f, 100.0f }, 10.0f, TypeAABB::rigidBody));
-	box = new AABBbox({ 50, 50 }, { 40, 40 }, 20.0f, TypeAABB::rigidBody);
-	box2 = new AABBbox({ 300, 50 }, { 40, 40 }, 10.0f, TypeAABB::rigidBody);
-	//box3 = new AABBbox({ 50, 300 }, { 40, 40 }, 10.0f, TypeAABB::rigidBody);
-	//Physic Engine Init
-
 	//Texture loading
 	TextureLoader::loadTexture(Options::getInstance().getImageFilePath() + "pgstaticfront.png");
 	//Texture loading
 
-	image = Image(TextureLoader::getTexture(Options::getInstance().getImageFilePath() + "pgstaticfront.png"), Renderer::getLayer(0));
-	image2 = Image(TextureLoader::getTexture(Options::getInstance().getImageFilePath() + "pgstaticfront.png"), Renderer::getLayer(0));
-	image3 = Image(TextureLoader::getTexture(Options::getInstance().getImageFilePath() + "pgstaticfront.png"), Renderer::getLayer(0));
+	//Physic Engine Init
+	BattleHandler::getInstance().createEntity(Options::getInstance().getImageFilePath() + "black.png", { 200, 200 }, { 40, 40}, 20.0f, 1.0f);
+	//Physic Engine Init
 
 	start = std::chrono::high_resolution_clock::now();
 }
@@ -66,46 +59,36 @@ void MyEventHandler::onFrameStart()
 {
 	std::chrono::duration<double> deltaTime = std::chrono::high_resolution_clock::now() - start;
 	elapsedTime = deltaTime.count();
+
 	//Clear Screen
 	Renderer::clearScreen(nc::Color(50, 50, 150, 255));
 	Image::resetAllCondition();
 	//Clear Screen
 
 	//Update AABB
-	if (Input::isRealesed((nc::KeySym::F)) /*&& first*/)
-	{
-		first = !first;
-		box2->applyForce(elapsedTime, { -0.5f, 0.0f });
-		//box3->applyForce(elapsedTime, { 0.0f, -1.0f });
-	}
-	if (Input::isPressed(Input::KeyMouse::rightKey))
-	{
-		box->applyForce(elapsedTime, { 1.0f, 0.0f });
-		if (box->getV().x > 0.05f)
-		{
-			box->setV({ 0.05f, box->getV().y });
-		}
-	}
-	else if (Input::isPressed(Input::KeyMouse::leftKey))
-	{
-	}
-	PhysicEngine::getInstance().update(elapsedTime);
+	int index = BattleHandler::getInstance().createParticle(Options::getInstance().getImageFilePath() + "pgstaticfront.png", { 100, 100 }, { 30, 30 }, 20.0f, 2.5f, 1.0f);
+	BattleHandler::getInstance().applyForce(0.5f, { 0.5f, 0.5f }, index);
+
+	BattleHandler::getInstance().moveParticle(elapsedTime);
+	BattleHandler::getInstance().detectCollisionParticle();
 	//Update AABB
 
 	//Update Image
-	image.draw(box->getIntCenter().x, box->getIntCenter().y);
-	image2.draw(box2->getIntCenter().x, box2->getIntCenter().y);
-	//image3.draw(box3->getIntCenter().x, box3->getIntCenter().y);
+	BattleHandler::getInstance().draw();
 	//Update Image
 
 	//Update Time
 	start = std::chrono::high_resolution_clock::now();
 	//Update Time
 
+	//Clear BattleHandler
+	BattleHandler::getInstance().destroyDeadElement();
+	//Clear BattleHandler
+
 	//Update Info DebugLayer
 	Renderer::debugLayer.setDebugString("ElapsedTime: " + std::to_string(elapsedTime), 0);
-	Renderer::debugLayer.setDebugString("Velocity.x: " + std::to_string(box->getV().x) + "Velocity.y: " + std::to_string(box->getV().y), 1);
-	Renderer::debugLayer.setDebugString("Center.x: " + std::to_string(box->getIntCenter().x) + "Center.y: " + std::to_string(box->getCenter().y), 2);
+	//Renderer::debugLayer.setDebugString("Velocity.x: " + std::to_string(box->getV().x) + "Velocity.y: " + std::to_string(box->getV().y), 1);
+	//Renderer::debugLayer.setDebugString("Center.x: " + std::to_string(box->getIntCenter().x) + "Center.y: " + std::to_string(box->getCenter().y), 2);
 	//Update Info DebugLayer
 
 	//Clear Input 

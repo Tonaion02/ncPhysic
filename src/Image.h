@@ -41,10 +41,14 @@ public:
 	void draw(const nc::Vector2i pos, const nc::Vector2i min, const nc::Vector2i dimension, int layer);
 	void draw(int x, int y, int xi, int yi, int w, int h, int layer = 0);
 
+	void setAlpha(float alpha);
+
 	int getWidth() const { return m_Sprite->width(); }
 	int getHeight() const { return m_Sprite->height(); }
 
 	int getLayer() const { return m_Sprite->layer(); }
+
+	void destroy();
 
 	void resetCondition() { m_Sprite->setDrawEnabled(false); }
 	static void resetAllCondition();

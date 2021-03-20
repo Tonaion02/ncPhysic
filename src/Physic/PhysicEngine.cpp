@@ -7,12 +7,11 @@
 //AABBbox Class
 
 //AABBbox Constructor
-AABBbox::AABBbox(const nc::Vector2f& min, const nc::Vector2i& dimension, float mass, TypeAABB type)
-	: m_min({ min.x, min.y }), m_max({ min.x + dimension.x, min.y + dimension.y }), m_mass(mass), typeAABB(type)
+AABBbox::AABBbox(const nc::Vector2i& min, const nc::Vector2i& dimension, float mass)
+	: m_min({ (float)min.x, (float)min.y }), m_max({ (float)min.x + dimension.x, (float)min.y + dimension.y }), m_mass(mass)
 {
 	m_v = { 0.0f, 0.0f };
-	PhysicEngine::getInstance().addAABBbox(this);
-	int wewe = 10;
+	//PhysicEngine::getInstance().addAABBbox(this);
 }
 //AABBbox Constructor
 
@@ -34,23 +33,23 @@ void AABBbox::moveY(float elapsedTime)
 //AABBbox move function
 
 //AABBbox detecting collision
-bool AABBbox::detectionX(AABBbox* box)
+bool AABBbox::detectionX(AABBbox box)
 {
-	if (m_min.x < box->m_max.x && m_max.x > box->m_min.x)
+	if (m_min.x < box.m_max.x && m_max.x > box.m_min.x)
 	{
 		return true;
 	}
 	return false;
 }
-bool AABBbox::detectionY(AABBbox* box)
+bool AABBbox::detectionY(AABBbox box)
 {
-	if (m_min.y < box->m_max.y && m_max.y > box->m_min.y)
+	if (m_min.y < box.m_max.y && m_max.y > box.m_min.y)
 	{
 		return true;
 	}
 	return false;
 }
-bool AABBbox::detection(AABBbox* box)
+bool AABBbox::detection(AABBbox box)
 {
 	return this->detectionX(box) && this->detectionY(box);
 }
@@ -70,7 +69,29 @@ void PhysicEngine::addAABBbox(AABBbox* box)
 {
 	boxes.push_back(box);
 }
+
+void PhysicEngine::eraseAABBbox(AABBbox* box)
+{
+	for (int i = 0; i < boxes.size(); i++)
+	{
+		if (box == boxes[i])
+		{
+			delete boxes[i];
+			boxes.erase(boxes.begin() + i);
+			break;
+		}
+	}
+}
 //PhysicEngine Constructor
+
+//PhysicEngine Update
+
+bool PhysicEngine::detectCollision(AABBbox* box, AABBbox* otherBox)
+{
+	return true;
+}
+
+//PhysicEngine Update
 
 //PhysicEngine Update
 void PhysicEngine::update(float elapsedTime)
@@ -81,50 +102,50 @@ void PhysicEngine::update(float elapsedTime)
 		boxes[i]->moveX(elapsedTime);
 
 		//Check for collision of rigidbody
-		if (boxes[i]->getTypeAABB() == TypeAABB::rigidBody)
-		{
-			for (int j = 0; j < boxes.size(); j++)
-			{
-				if (j != i && boxes[j]->getTypeAABB() == TypeAABB::rigidBody)
-				{
-					if (boxes[i]->detection(boxes[j]))
-					{
-						*boxes[i] = copy;
-						float x = PhysicEngine::getInstance().calculateDistanceX(*boxes[i], *boxes[j]);
-						if (boxes[i]->getV().x < 0)
-						{
-							x = -x;
-						}
-						boxes[i]->move({ x, 0.0f });
-						PhysicEngine::getInstance().collisionResponseX(boxes[i], boxes[j]);
-					}
-				}
-			}
-		}
-		
-		copy = *(boxes[i]);
-		boxes[i]->moveY(elapsedTime);
+		//if (boxes[i]->getTypeAABB() == TypeAABB::rigidBody)
+		//{
+		//	for (int j = 0; j < boxes.size(); j++)
+		//	{
+		//		if (j != i && boxes[j]->getTypeAABB() == TypeAABB::rigidBody)
+		//		{
+		//			if (boxes[i]->detection(boxes[j]))
+		//			{
+		//				*boxes[i] = copy;
+		//				float x = PhysicEngine::getInstance().calculateDistanceX(*boxes[i], *boxes[j]);
+		//				if (boxes[i]->getV().x < 0)
+		//				{
+		//					x = -x;
+		//				}
+		//				boxes[i]->move({ x, 0.0f });
+		//				PhysicEngine::getInstance().collisionResponseX(boxes[i], boxes[j]);
+		//			}
+		//		}
+		//	}
+		//}
+		//
+		//copy = *(boxes[i]);
+		//boxes[i]->moveY(elapsedTime);
 
-		if (boxes[i]->getTypeAABB() == TypeAABB::rigidBody)
-		{
-			for (int j = 0; j < boxes.size(); j++)
-			{
-				if (j != i && boxes[j]->getTypeAABB() == TypeAABB::rigidBody)
-				{
-					if (boxes[i]->detection(boxes[j]))
-					{
-						*boxes[i] = copy;
-						float y = PhysicEngine::getInstance().calculateDistanceY(*boxes[i], *boxes[j]);
-						if (boxes[i]->getV().y < 0)
-						{
-							y = -y;
-						}
-						boxes[i]->move({ 0.0f, y });
-						PhysicEngine::getInstance().collisionResponseY(boxes[i], boxes[j]);
-					}
-				}
-			}
-		}
+		//if (boxes[i]->getTypeAABB() == TypeAABB::rigidBody)
+		//{
+		//	for (int j = 0; j < boxes.size(); j++)
+		//	{
+		//		if (j != i && boxes[j]->getTypeAABB() == TypeAABB::rigidBody)
+		//		{
+		//			if (boxes[i]->detection(boxes[j]))
+		//			{
+		//				*boxes[i] = copy;
+		//				float y = PhysicEngine::getInstance().calculateDistanceY(*boxes[i], *boxes[j]);
+		//				if (boxes[i]->getV().y < 0)
+		//				{
+		//					y = -y;
+		//				}
+		//				boxes[i]->move({ 0.0f, y });
+		//				PhysicEngine::getInstance().collisionResponseY(boxes[i], boxes[j]);
+		//			}
+		//		}
+		//	}
+		//}
 		//Check for collision of rigidbody
 	}
 }

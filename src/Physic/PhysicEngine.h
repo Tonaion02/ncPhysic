@@ -17,19 +17,16 @@ enum TypeAABB
 	NoneTypeAABB = -1,
 	rigidBody = 0,
 	rectangleHitBox = 1,
-	rectangleParticle = 2
+	rectangleParticle = 2,
+	rectangleWall = 3
 };
 
 class AABBbox
 {
 public:
 	AABBbox() {}
-	AABBbox(const nc::Vector2f& min, const nc::Vector2i& dimension, float mass, TypeAABB type);
+	AABBbox(const nc::Vector2i& min, const nc::Vector2i& dimension, float mass);
 	~AABBbox() {}
-
-	//void moveX(float spaceX) { m_min.x += spaceX; m_max.x += spaceX; }
-	//void moveY(float spaceY) { m_min.y += spaceY; m_max.y += spaceY; }
-	//void move(const nc::Vector2f& space) { m_min.x += space.x; m_max.x += space.x; m_min.y += space.y; m_max.y += space.y; }
 
 	void moveX(float elapsedTime);
 	void moveY(float elapsedTime);
@@ -50,11 +47,9 @@ public:
 
 	float getMass() { return m_mass; }
 
-	TypeAABB getTypeAABB() { return typeAABB; }
-
-	bool detectionX(AABBbox* box);
-	bool detectionY(AABBbox* box);
-	bool detection(AABBbox* box);
+	bool detectionX(AABBbox box);
+	bool detectionY(AABBbox box);
+	bool detection(AABBbox box);
 
 public:
 	nc::Vector2f m_min, m_max;
@@ -64,8 +59,8 @@ private:
 	float m_mass;
 	nc::Vector2f m_v;
 
-	TypeAABB typeAABB;
 };
+
 
 
 
@@ -80,17 +75,21 @@ public:
 	}
 	
 	void update(float elapsedTime);
+
 	void addAABBbox(AABBbox* box);
+	void eraseAABBbox(AABBbox* box);
+
+	bool detectCollision(AABBbox* box, AABBbox* otherBox);
+
+	float calculateDistanceX(const AABBbox& box, const AABBbox& box2);
+	float calculateDistanceY(const AABBbox& box, const AABBbox& box2);
+
+	void collisionResponseX(AABBbox* box, AABBbox* box2);
+	void collisionResponseY(AABBbox* box, AABBbox* box2);
 
 	float conversionFromMeterToPixel(float space);
 private:
 	PhysicEngine() {}
-
-	float calculateDistanceX(const AABBbox& box, const AABBbox& box2);
-	float calculateDistanceY(const AABBbox& box, const AABBbox& box2);
-	
-	void collisionResponseX(AABBbox* box, AABBbox* box2);
-	void collisionResponseY(AABBbox* box, AABBbox* box2);
 	
 private:
 	std::vector<AABBbox*> boxes;
