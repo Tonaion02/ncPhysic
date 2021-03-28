@@ -12,15 +12,6 @@
 
 namespace nc = ncine;
 
-enum TypeAABB
-{
-	NoneTypeAABB = -1,
-	rigidBody = 0,
-	rectangleHitBox = 1,
-	rectangleParticle = 2,
-	rectangleWall = 3
-};
-
 class AABBbox
 {
 public:
@@ -55,10 +46,40 @@ public:
 	nc::Vector2f m_min, m_max;
 
 private:
-	//Non utilizzati
 	float m_mass;
 	nc::Vector2f m_v;
 
+};
+
+
+
+
+
+enum Axis
+{
+	NoneTypeAxis = -1, 
+	x = 0, 
+	y = 1
+};
+
+
+
+
+
+class Line
+{
+public:
+	Line() {}
+	Line(float limit, Axis axis);
+	
+	bool inLine(const AABBbox& box);
+
+	Axis getAxis() const;
+	float getLimit() const;
+private:
+	float m_limit;
+
+	Axis m_axis;
 };
 
 
@@ -76,24 +97,24 @@ public:
 	
 	void update(float elapsedTime);
 
-	void addAABBbox(AABBbox* box);
-	void eraseAABBbox(AABBbox* box);
-
-	bool detectCollision(AABBbox* box, AABBbox* otherBox);
+	float collisionResolutionX(AABBbox& box, AABBbox& box2);
+	float collisionResolutionY(AABBbox& box, AABBbox& box2);
 
 	float calculateDistanceX(const AABBbox& box, const AABBbox& box2);
 	float calculateDistanceY(const AABBbox& box, const AABBbox& box2);
 
+	float calculateDistance(const AABBbox& box, const Line& line);
+	
 	void collisionResponseX(AABBbox* box, AABBbox* box2);
 	void collisionResponseY(AABBbox* box, AABBbox* box2);
 
 	float conversionFromMeterToPixel(float space);
+
+	bool inLimitX(const AABBbox& box);
+	bool inLimitY(const AABBbox& box);
 private:
 	PhysicEngine() {}
 	
 private:
 	std::vector<AABBbox*> boxes;
 };
-
-
-

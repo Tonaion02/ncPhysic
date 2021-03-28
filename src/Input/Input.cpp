@@ -44,7 +44,8 @@ void Input::saveEvent(const nc::MouseEvent& event)
 void Input::updateMousePos(const nc::MouseState& event)
 {
 	s_lastMousePos = s_mousePos;
-	s_mousePos = { event.x, (int32_t)(nc::theApplication().height() - event.y) };
+	//s_mousePos = { event.x, (int32_t)(nc::theApplication().height() - event.y) };
+	s_mousePos = { event.x, event.y };
 	s_mouseSliding = s_mousePos - s_lastMousePos;
 }
 

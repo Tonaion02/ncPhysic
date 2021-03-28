@@ -11,7 +11,6 @@ AABBbox::AABBbox(const nc::Vector2i& min, const nc::Vector2i& dimension, float m
 	: m_min({ (float)min.x, (float)min.y }), m_max({ (float)min.x + dimension.x, (float)min.y + dimension.y }), m_mass(mass)
 {
 	m_v = { 0.0f, 0.0f };
-	//PhysicEngine::getInstance().addAABBbox(this);
 }
 //AABBbox Constructor
 
@@ -53,7 +52,6 @@ bool AABBbox::detection(AABBbox box)
 {
 	return this->detectionX(box) && this->detectionY(box);
 }
-
 //AABBbox detecting collision
 
 //AABBbox Class
@@ -62,36 +60,46 @@ bool AABBbox::detection(AABBbox box)
 
 
 
-//PhysicEngine Class
+//Line Class
 
-//PhysicEngine Constructor
-void PhysicEngine::addAABBbox(AABBbox* box)
+//Line Constructor
+Line::Line(float limit, Axis axis)
+	:m_limit(limit), m_axis(axis)
 {
-	boxes.push_back(box);
+
 }
+//Line Constructor
 
-void PhysicEngine::eraseAABBbox(AABBbox* box)
+//inLine function
+bool Line::inLine(const AABBbox& box)
 {
-	for (int i = 0; i < boxes.size(); i++)
+	if (m_axis == Axis::x)
 	{
-		if (box == boxes[i])
-		{
-			delete boxes[i];
-			boxes.erase(boxes.begin() + i);
-			break;
-		}
+		return ((box.m_min.x > m_limit) && (box.m_max.x < m_limit)) || ((box.m_min.x < m_limit) && (box.m_max.x > m_limit));
+	}
+	else if (m_axis == Axis::y)
+	{
+		return ((box.m_min.y > m_limit) && (box.m_max.y < m_limit)) || ((box.m_min.y < m_limit) && (box.m_max.y > m_limit));
 	}
 }
-//PhysicEngine Constructor
+//inLine function
 
-//PhysicEngine Update
-
-bool PhysicEngine::detectCollision(AABBbox* box, AABBbox* otherBox)
-{
-	return true;
+Axis Line::getAxis() const
+{ 
+	return m_axis; 
 }
 
-//PhysicEngine Update
+float Line::getLimit() const
+{
+	return m_limit;
+}
+//Line Class
+
+
+
+
+
+//PhysicEngine Class
 
 //PhysicEngine Update
 void PhysicEngine::update(float elapsedTime)
@@ -172,6 +180,25 @@ float PhysicEngine::calculateDistanceY(const AABBbox& box, const AABBbox& box2)
 	float max = std::min(box.m_max.y, box2.m_max.y);
 	return min - max;
 }
+
+float PhysicEngine::calculateDistance(const AABBbox& box, const Line& line)
+{
+	float d, d2, r;
+	if (line.getAxis() == Axis::x)
+	{
+		d = std::abs(line.getLimit() - box.m_min.x);
+		d2 = std::abs(line.getLimit() - box.m_max.x);
+		r = std::min(d, d2);
+	}
+	else if (line.getAxis() == Axis::y)
+	{
+		d = std::abs(line.getLimit() - box.m_min.y);
+		d2 = std::abs(line.getLimit() - box.m_max.y);
+		r = std::min(d, d2);
+	}
+	return r;
+}
+
 //PhysicEngine calculate Distance
 
 //PhysicEngine Response
@@ -184,7 +211,7 @@ void PhysicEngine::collisionResponseX(AABBbox* box, AABBbox* box2)
 	v = 0.0f;
 	v2 = 0.0f;
 	box->setV({ v, box->getV().y });
-	box2->setV({ v2, box2->getV().y });
+	//box2->setV({ v2, box2->getV().y });
 }
 void PhysicEngine::collisionResponseY(AABBbox* box, AABBbox* box2)
 {
@@ -192,9 +219,35 @@ void PhysicEngine::collisionResponseY(AABBbox* box, AABBbox* box2)
 	v = 0;
 	v2 = 0;
 	box->setV({ box->getV().x, v });
-	box2->setV({ box2->getV().x, v2 });
+	//box2->setV({ box2->getV().x, v2 });
 }
 
 //PhysicEngine Response
+
+//PhysicEngine CollisionResolution
+
+float PhysicEngine::collisionResolutionX(AABBbox& box, AABBbox& box2)
+{
+	return 0.0f;
+}
+
+float PhysicEngine::collisionResolutionY(AABBbox& box, AABBbox& box2)
+{
+	return 0.0f;
+}
+
+
+//PhysicEngine CollisionResolution
+
+//PhysicEngine InLimit
+bool PhysicEngine::inLimitX(const AABBbox& box)
+{
+	return true;
+}
+bool PhysicEngine::inLimitY(const AABBbox& box)
+{
+	return true;
+}
+//PhysicEngine InLimit
 
 //PhysicEngine Class

@@ -17,6 +17,7 @@ file(GLOB VFX_FILES "src/vfx/*.h" "src/vfx/*.cpp")
 file(GLOB WORLD_FILES "src/world/*.h" "src/world/*.cpp")
 file(GLOB PHYSIC_FILES "src/Physic/*.h" "src/Physic/*.cpp")
 file(GLOB GAMEOBJECT_FILES "src/GameObject/*.h" "src/GameObject/*.cpp")
+file(GLOB TIMER_FILES "src/Timer/*.h" "src/Timer/*.cpp")
 	
 set(PACKAGE_SOURCES
 	src/main.h
@@ -45,6 +46,7 @@ set(PACKAGE_SOURCES
 	${WORLD_FILES}
 	${PHYSIC_FILES}
 	${GAMEOBJECT_FILES}
+	${TIMER_FILES}
 )
 
 function(callback_end)
@@ -67,4 +69,6 @@ function(callback_end)
 	source_group("Physic" FILES ${PHYSIC_FILES})
 	
 	source_group("GameObject" FILES ${GAMEOBJECT_FILES})
+	
+	source_group("Timer" FILES ${TIMER_FILES})
 endfunction()

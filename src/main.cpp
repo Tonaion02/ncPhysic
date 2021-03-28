@@ -26,6 +26,7 @@ void MyEventHandler::onPreInit(nc::AppConfiguration &config)
 	config.withVSync = true;
 	config.windowTitle = "ncTemplate";
 	config.windowIconFilename = "icon48.png";
+	config.resolution = { 1080, 720 };
 
 	Options::getInstance().setBaseFilePath("../../ncPhysic-data/data/");
 	Options::getInstance().readFromFile("../../ncPhysic-data/data/options.txt");
@@ -49,8 +50,27 @@ void MyEventHandler::onInit()
 	//Texture loading
 
 	//Physic Engine Init
-	BattleHandler::getInstance().createEntity(Options::getInstance().getImageFilePath() + "black.png", { 200, 200 }, { 40, 40}, 20.0f, 1.0f);
+	//BattleHandler::getInstance().createEntity(Options::getInstance().getImageFilePath() + "black.png", { 200, 200 }, { 40, 40}, 20.0f, 1.0f);
+	
+	BattleHandler::getInstance().createPlayerEntity(Options::getInstance().getImageFilePath() + "black.png", { 200, 200 }, { 40, 40 }, 20.0f, 20.0f);
+	BattleHandler::getInstance().createStaticRectangleWalls(Options::getInstance().getImageFilePath() + "white.png", { 400, 400 }, { 40, 40 }, 20.0f, 20.0f);
+	BattleHandler::getInstance().createStaticRectangleWalls(Options::getInstance().getImageFilePath() + "white.png", { 900, 400 }, { 40, 40 }, 20.0f, 20.0f);
+
+	BattleHandler::getInstance().createEntity(Options::getInstance().getImageFilePath() + "red.png", { 400, 600 }, { 40, 40 }, 20.0f, 20.0f);
+
+	BattleHandler::getInstance().createLimitLine(0.0f, Axis::x);
+	BattleHandler::getInstance().createLimitLine(1080, Axis::x);
+	BattleHandler::getInstance().createLimitLine(0.0f, Axis::y);
+	BattleHandler::getInstance().createLimitLine(720, Axis::y);
+
 	//Physic Engine Init
+
+	//CoolDown Init
+	coolDown = CoolDown(0.1f);
+	coolDownHitbox = CoolDown(0.2f);
+	coolDown.registerInit();
+	coolDownHitbox.registerInit();
+	//CoolDown Init
 
 	start = std::chrono::high_resolution_clock::now();
 }
@@ -65,12 +85,52 @@ void MyEventHandler::onFrameStart()
 	Image::resetAllCondition();
 	//Clear Screen
 
+	BattleHandler::getInstance().applyFrictionOnPlayerEntities(elapsedTime);
+
+	//Take Command
+	if (Input::isPressed(nc::KeySym::W))
+	{
+		BattleHandler::getInstance().applyForceOnPlayerEntities(elapsedTime, { 0.0f, 50.0f }, 0);
+	}
+	if (Input::isPressed(nc::KeySym::S))
+	{
+		BattleHandler::getInstance().applyForceOnPlayerEntities(elapsedTime, { 0.0f, -50.0f }, 0);
+	}
+	if (Input::isPressed(nc::KeySym::A))
+	{
+		BattleHandler::getInstance().applyForceOnPlayerEntities(elapsedTime, { -50.0f, 0.0f }, 0);
+	}
+	if (Input::isPressed(nc::KeySym::D))
+	{
+		BattleHandler::getInstance().applyForceOnPlayerEntities(elapsedTime, { 50.0f, 0.0f }, 0);
+	}
+	//Take Command
+
 	//Update AABB
-	int index = BattleHandler::getInstance().createParticle(Options::getInstance().getImageFilePath() + "pgstaticfront.png", { 100, 100 }, { 30, 30 }, 20.0f, 2.5f, 1.0f);
-	BattleHandler::getInstance().applyForce(0.5f, { 0.5f, 0.5f }, index);
+	if (coolDown.isEnd() && Input::isPressed(Input::KeyMouse::rightKey))
+	{
+		int index = BattleHandler::getInstance().createParticle(Options::getInstance().getImageFilePath() + "pgstaticfront.png", { Input::getMousePos().x, Input::getMousePos().y }, { 30, 30 }, 20.0f, 2.5f, 1.0f);
+		BattleHandler::getInstance().applyForceOnParticle(0.5f, { 0.5f, 0.5f }, index);
+		coolDown.registerInit();
+	}
+
+	if (coolDownHitbox.isEnd() && Input::isPressed(Input::KeyMouse::leftKey))
+	{
+		//int index = BattleHandler::getInstance().createRectangleHitbox(Options::getInstance().getImageFilePath() + "white.png", { Input::getMousePos().x, Input::getMousePos().y }, { 30, 30 }, 2.5f, 1.0f);
+		int index = BattleHandler::getInstance().createPlayerRectangleHitbox(Options::getInstance().getImageFilePath() + "white.png", 
+			{ (int)BattleHandler::getInstance().getPlayerRectangleEntities(0)->m_box.m_max.x - 10, (int)BattleHandler::getInstance().getPlayerRectangleEntities(0)->m_box.m_max.y - 10},
+			{ 30, 30 }, 2.5f, 1.0f);
+		coolDownHitbox.registerInit();
+	}
 
 	BattleHandler::getInstance().moveParticle(elapsedTime);
+	BattleHandler::getInstance().movePlayerEntities(elapsedTime);
+
+	BattleHandler::getInstance().updateLifeRectangleHitbox();
+	BattleHandler::getInstance().updateLifePlayerRectangleHitbox();
+	
 	BattleHandler::getInstance().detectCollisionParticle();
+	BattleHandler::getInstance().detectCollisionEntity();
 	//Update AABB
 
 	//Update Image
@@ -87,7 +147,7 @@ void MyEventHandler::onFrameStart()
 
 	//Update Info DebugLayer
 	Renderer::debugLayer.setDebugString("ElapsedTime: " + std::to_string(elapsedTime), 0);
-	//Renderer::debugLayer.setDebugString("Velocity.x: " + std::to_string(box->getV().x) + "Velocity.y: " + std::to_string(box->getV().y), 1);
+	Renderer::debugLayer.setDebugString("life: " + std::to_string(BattleHandler::getInstance().getPlayerRectangleEntities(0)->m_currentLife), 1);
 	//Renderer::debugLayer.setDebugString("Center.x: " + std::to_string(box->getIntCenter().x) + "Center.y: " + std::to_string(box->getCenter().y), 2);
 	//Update Info DebugLayer
 

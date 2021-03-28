@@ -22,6 +22,8 @@
 
 #include "GameObject/GameObject.h"
 
+#include "Timer/Timer.h"
+
 namespace ncine {
 
 class AppConfiguration;
@@ -53,6 +55,8 @@ private:
 
 	std::chrono::time_point<std::chrono::high_resolution_clock> start;
 	double elapsedTime = 0.0f;
+
+	CoolDown coolDown, coolDownHitbox;
 };
 
 #endif
